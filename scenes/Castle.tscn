@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://tileset/tileset.tres" type="TileSet" id=1]
+[ext_resource path="res://scripts/Castle.gd" type="Script" id=2]
+
+[node name="Castle" type="TileMap"]
+tile_set = ExtResource( 1 )
+format = 1
+tile_data = PoolIntArray( 131072, 12, 0, 131073, 12, 0, 131074, 12, 0, 131075, 12, 0, 131076, 12, 0, 131077, 12, 0, 131078, 12, 0, 131079, 12, 0, 131080, 12, 0, 131081, 12, 0, 131082, 12, 0, 327685, 7, 0, 393221, 7, 0, 458757, 7, 0 )
+script = ExtResource( 2 )

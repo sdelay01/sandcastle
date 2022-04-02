@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://assets/ld50.png" type="Texture" id=1]
+[ext_resource path="res://scripts/EndGame.gd" type="Script" id=2]
+
+[node name="EndGame" type="Node2D"]
+script = ExtResource( 2 )
+
+[node name="GameOver" type="Sprite" parent="."]
+position = Vector2( 352, 277.069 )
+texture = ExtResource( 1 )
+region_enabled = true
+region_rect = Rect2( 320, 256, 192, 32 )
+
+[node name="Score" type="Sprite" parent="."]
+position = Vector2( 352, 341 )
+texture = ExtResource( 1 )
+region_enabled = true
+region_rect = Rect2( 320, 288, 192, 32 )
+
+[node name="PressAnyKeyRestart" type="Sprite" parent="."]
+position = Vector2( 352, 500 )
+texture = ExtResource( 1 )
+region_enabled = true
+region_rect = Rect2( 64, 288, 256, 32 )

@@ -1,6 +1,7 @@
 extends Node2D
 
-var usagePerLevel = 3
+signal level_up
+var usagePerLevel = 2
 var usage = 0
 var level = 1
 var maxLevel = 5
@@ -27,6 +28,10 @@ func drawStars():
 func usedOnce():
 	usage += 1
 	if usage > usagePerLevel and level < maxLevel:
-		level += 1
+		emit_signal("level_up")
 		usage = 0
-		drawStars()
+
+func levelUp():
+	level += 1
+	drawStars()
+	

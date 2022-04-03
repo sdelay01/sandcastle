@@ -6,4 +6,4 @@
 position = Vector2( 640, 0 )
 texture = ExtResource( 1 )
 region_enabled = true
-region_rect = Rect2( 100, 118, 6, 6 )
+region_rect = Rect2( 69, 84, 6, 6 )

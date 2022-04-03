@@ -1,14 +1,14 @@
 extends Node2D
 
 signal done
-var texture = load("res://assets/circle.png")
+var textureCircle = load("res://assets/circle.png")
 var asp = AnimatedSprite.new()
 
 func _ready():
 	var sf = SpriteFrames.new()
 	for i in range(0, 68):
 		var at = AtlasTexture.new()
-		at.atlas = texture
+		at.atlas = textureCircle
 		at.region = Rect2(32 * i, 0, 32, 32)
 		sf.add_frame("default", at)
 

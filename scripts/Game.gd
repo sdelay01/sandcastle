@@ -6,6 +6,7 @@ var Kevin = preload("res://scenes/Kevin.tscn")
 var Wave = preload("res://scenes/Wave.tscn")
 var Tool = preload("res://scenes/Tool.tscn")
 var Flag = preload("res://scenes/Flags.tscn")
+var Bonus = preload("res://scenes/Bonus.tscn")
 var EndGame = preload("res://scenes/EndGame.tscn")
 var Bubble = preload("res://scenes/Bubble.tscn")
 var counter = 0
@@ -26,12 +27,12 @@ var tutoStep = 0
 var tutoSteps = [
 	["Here is Justin", 352, 260, "displayKevin"],
 	["He is building a Sand Castle", 352, 260, "displayCastle"],
-	["Let's help him", 352, 260, null],
-	["Maintain X to use your bucket to build towers", 150, 70, "displayBucket"],
+	["Let's help him!", 352, 260, null],
+	["Maintain X to build towers", 150, 70, "displayBucket"],
 	["Maintain W to dig trenches", 150, 70, "displayShovel"],
 	["The castle must worth at least 5 flags", 150, 70, "displayFlag"],
 	["Next wave is indicated here", 520, 70, "displayWave"],
-	["The tide is rising", 352, 260, null],
+	["Beware, the tide is rising", 352, 260, null],
 	["Make the castle last as long as you can!", 352, 260, null],
 	["Ready?", 352, 260, null],
 ]
@@ -41,9 +42,9 @@ func _ready():
 	$Title.modulate.a = 0
 	$Present.hide()
 	$PressAnyKey.hide()
-	displayTitle()
+	#displayTitle()
 	# startTuto()
-	# startGame()
+	fastStart()
 	
 func _process(delta):
 	if menuOn:
@@ -103,7 +104,15 @@ func startTuto():
 func displayKevin():
 	kevin = Kevin.instance()
 	self.add_child(kevin)
-	
+
+func addBonus(_target, _rect, _instance, _function):
+	var b = Bonus.instance()
+	b.position = kevin.position + Vector2(32, 32)
+	b.init(_target, _rect)
+	b.connect("reach_target", _instance, _function)
+	self.add_child(b)
+
+
 func displayCastle():
 	kevin.setCastle(castle)
 	castle.initCastle()
@@ -112,12 +121,14 @@ func displayBucket():
 	bucket = Tool.instance()
 	bucket.init(Vector2(10, 0), Rect2(64, 320, 64, 64))
 	self.add_child(bucket)
+	bucket.connect("level_up", self, "addBonus", [Vector2(32, 20), Rect2(64, 96, 32, 32), bucket, "levelUp"])
 	kevin.setBucket(bucket)
 
 func displayShovel():
 	shovel = Tool.instance()
 	shovel.init(Vector2(70, 0), Rect2(128, 320, 64, 64))
 	self.add_child(shovel)
+	shovel.connect("level_up", self, "addBonus", [Vector2(75, 20), Rect2(96, 96, 32, 32), shovel, "levelUp"])
 	kevin.setShovel(shovel)
 
 func displayFlag():
@@ -130,6 +141,17 @@ func displayWave():
 	wave = Wave.instance()
 	self.add_child(wave)
 
+func fastStart():
+	castle = Castle.instance()
+	self.add_child_below_node($Sand, castle)
+	displayKevin()
+	displayCastle()
+	displayBucket()
+	displayShovel()
+	displayFlag()
+	displayWave()
+	startGame()
+	
 func startGame():
 	water = Water.instance()
 	self.add_child_below_node($DefaultWater, water)
@@ -144,7 +166,7 @@ func startGame():
 	wave.connect("waveEnd", flag, "checkGameOver")
 	flag.connect("game_over", self, "gameOver")
 	castle.connect("decrease_build", flag, "decrease")
-	kevin.connect("increase_build", flag, "increase")
+	kevin.connect("increase_build", self, "addBonus", [Vector2(155, 20), Rect2(105, 68, 15, 25), flag, "increase"])
 
 func gameOver():
 	endGame = EndGame.instance()

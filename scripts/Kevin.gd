@@ -8,6 +8,7 @@ var cellSize = 64
 var Loader = preload("res://scenes/Loader.tscn")
 var loader
 var castle
+var sea
 var buildPossible = true
 var digPossible = true
 
@@ -27,6 +28,7 @@ func _ready():
 func setCastle(_castle): castle = _castle
 func setShovel(_shovel): shovel = _shovel
 func setBucket(_bucket): bucket = _bucket
+func setSea(_sea): sea = _sea
 
 func _physics_process(_delta):
 	if userBlocked: return
@@ -42,11 +44,23 @@ func _physics_process(_delta):
 func move(delta):
 	if loader: loader.queue_free()
 	var _n = move_and_collide(delta * cellSize)
+	computePossibles()
+	if delta == Vector2(0, -1): $AnimatedSprite.play("up")
+	else : $AnimatedSprite.play("default")
+
+func computePossibles():
 	var currentCellPosition = castle.world_to_map(position)
 	var object = castle.get_cellv(currentCellPosition)
 	buildPossible = object == TOWER1 || object == TOWER2 || object == -1
 	digPossible = object == -1
 
+func onWaveMove():
+	var currentCellPosition = sea.world_to_map(position)
+	var object = sea.get_cellv(currentCellPosition)
+	if object == 1 || object == 2: $AnimatedSprite.play("lowTide")
+	elif object == 3 || object == 4 || object == 11 : $AnimatedSprite.play("highTide")
+	else: $AnimatedSprite.play("default")
+	
 func _input(event):
 	if event.is_action_pressed("ui_x"): build()
 	if event.is_action_released("ui_x"):
@@ -87,7 +101,7 @@ func built():
 		castle.set_cellv(currentCellPosition, TOWER3)
 		bucket.usedOnce()
 		emit_signal("increase_build")
-		buildPossible = false
+		computePossibles()
 
 func dig():
 	if loader: loader.queue_free()
@@ -105,5 +119,4 @@ func dug():
 	castle.set_cellv(currentCellPosition, HOLE1)
 	shovel.usedOnce()
 	emit_signal("increase_build")
-	digPossible = false
-	buildPossible = false
+	computePossibles()

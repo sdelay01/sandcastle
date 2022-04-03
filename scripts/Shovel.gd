@@ -1,15 +1,13 @@
 extends Node2D
 
 signal level_up
-var usagePerLevel = 2
+var usagePerLevel = 5
 var usage = 0
 var level = 1
 var maxLevel = 5
 var texture = load("res://assets/ld50.png")
-var lightStar = Rect2(64, 80, 16, 16)
-var darkStar = Rect2(80, 80, 16, 16)
-var lightHeart = Rect2(64, 64, 16, 16)
-var darkHeart = Rect2(80, 64, 16, 16)
+var lightStar = Rect2(64, 64, 16, 16)
+var stars = []
 
 func init(pos, rect):
 	position = pos
@@ -17,17 +15,21 @@ func init(pos, rect):
 	drawStars()
 
 func drawStars():
-	var deltaX = 0
-	var deltaY = 45
-	for x in range(1, maxLevel + 1):
-		if x <= level:
-			self.add_child(Singleton.createSprite(texture, Vector2(deltaX + x * 8, deltaY), lightHeart ))
-		else :
-			self.add_child(Singleton.createSprite(texture, Vector2(deltaX + x * 8, deltaY), darkHeart ))
-	
+	var defaultPos = Vector2(25, 45)
+	var deltaX = 10
+	for s in stars:
+		s.queue_free()
+	stars = []
+	for x in range(0, level):
+		var star = Singleton.createSprite(texture, Vector2(x * deltaX - deltaX * (level / 2.0 - 0.5), 0) + defaultPos, lightStar )
+		self.add_child(star)
+		stars.push_back(star)
+
+func getUsagePerLevel(): return usagePerLevel + level * 2
+
 func usedOnce():
 	usage += 1
-	if usage > usagePerLevel and level < maxLevel:
+	if usage > getUsagePerLevel() and level < maxLevel:
 		emit_signal("level_up")
 		usage = 0
 

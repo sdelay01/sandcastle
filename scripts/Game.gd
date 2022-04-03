@@ -1,5 +1,6 @@
 extends Node2D
 
+var texture = load("res://assets/ld50.png")
 var Castle = preload("res://scenes/Castle.tscn")
 var Water = preload("res://scenes/Water.tscn")
 var Kevin = preload("res://scenes/Kevin.tscn")
@@ -9,6 +10,7 @@ var Flag = preload("res://scenes/Flags.tscn")
 var Bonus = preload("res://scenes/Bonus.tscn")
 var EndGame = preload("res://scenes/EndGame.tscn")
 var Bubble = preload("res://scenes/Bubble.tscn")
+var Crab = preload("res://scenes/Crab.tscn")
 var counter = 0
 var menuOn = false
 var endGameOn = false
@@ -21,8 +23,11 @@ var shovel
 var flag
 var endGame
 var bubble
+var cloud
+var crab
 var menuDisplayed = false
 var endGameDisplayed = false
+var gameOn = false
 var tutoStep = 0
 var tutoSteps = [
 	["Here is Justin", 352, 260, "displayKevin"],
@@ -42,9 +47,9 @@ func _ready():
 	$Title.modulate.a = 0
 	$Present.hide()
 	$PressAnyKey.hide()
-	#displayTitle()
+	displayTitle()
 	# startTuto()
-	fastStart()
+	# fastStart()
 	
 func _process(delta):
 	if menuOn:
@@ -63,16 +68,55 @@ func _process(delta):
 		if counter > 2:
 			endGameDisplayed = true
 			endGameOn = false
+	if gameOn:
+		if cloud:
+			cloud.position.x = cloud.position.x - delta * 15
+			if cloud.position.x < -192:
+				cloud.queue_free()
+				cloud = null
+				counter = 0
+		if crab:
+			crab.position.x += delta * 35
+			if crab.position.x > 704:
+				crab.queue_free()
+				crab = null
+				counter = 0
+		counter += delta
+		if counter > 3 and !cloud:
+			counter = 0
+			if cloud: cloud.queue_free()
+			randomize()
+			cloud = Singleton.createSprite(texture, Vector2(704, rand_range(100, 500)), Rect2(192, 384, 320, 128))
+			self.add_child(cloud)
+		if counter > 2 and !crab:
+			counter = 0
+			if crab: crab.queue_free()
+			randomize()
+			crab = Crab.instance()
+			crab.position = Vector2(-64, rand_range(100, 500))
+			self.add_child_below_node($DefaultWater, crab)
+		
 
 func _input(event):
-	if tutoStep and event is InputEventKey and event.pressed: nextTutoStep()
+	if gameOn && event is InputEventKey and event.pressed and (
+		event.scancode == KEY_LEFT or event.scancode == KEY_UP or event.scancode == KEY_RIGHT or event.scancode == KEY_DOWN
+	):
+		if kevin.userBlocked and !bubble:
+			var messageBlocked = "Justin cannot move during wave"
+			bubble = Bubble.instance().init(messageBlocked, 352 - int(len(messageBlocked) * 5 / 2.0) - 40, 580)
+			self.add_child(bubble)
+		if !kevin.userBlocked and bubble: removeBubble()
+
+	if tutoStep and event is InputEventKey and event.pressed and event.scancode == KEY_SPACE: nextTutoStep()
 	if menuDisplayed and event is InputEventKey and event.pressed: startTuto()
 	if endGameDisplayed and event is InputEventKey and event.pressed:
 		endGame.queue_free()
 		endGameDisplayed = false
-		startGame()
+		fastStart()
+
+func removeBubble():
+	if bubble: bubble.queue_free()
 	
-		
 func nextTutoStep():
 	if bubble: bubble.queue_free()
 	tutoStep += 1
@@ -111,7 +155,6 @@ func addBonus(_target, _rect, _instance, _function):
 	b.init(_target, _rect)
 	b.connect("reach_target", _instance, _function)
 	self.add_child(b)
-
 
 func displayCastle():
 	kevin.setCastle(castle)
@@ -160,13 +203,16 @@ func startGame():
 	wave.setSea(water)
 	wave.setCastle(castle)
 	wave.start()
-
+	kevin.setSea(water)
 	wave.connect("waveStart", kevin, "blockUser")
 	wave.connect("waveEnd", kevin, "unblockUser")
+	wave.connect("waveEnd", self, "removeBubble")
+	wave.connect("waveMove", kevin, "onWaveMove")
 	wave.connect("waveEnd", flag, "checkGameOver")
 	flag.connect("game_over", self, "gameOver")
 	castle.connect("decrease_build", flag, "decrease")
 	kevin.connect("increase_build", self, "addBonus", [Vector2(155, 20), Rect2(105, 68, 15, 25), flag, "increase"])
+	gameOn = true
 
 func gameOver():
 	endGame = EndGame.instance()
@@ -177,6 +223,8 @@ func gameOver():
 	kevin.blockUser()
 	kevin.queue_free()
 	kevin = null
+	if crab: crab.queue_free()
+	crab = null
 	bucket.queue_free()
 	shovel.queue_free()
 	flag.queue_free()

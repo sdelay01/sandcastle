@@ -2,6 +2,7 @@ extends Node2D
 
 signal waveStart
 signal waveEnd
+signal waveMove
 
 # Loader variables
 var WaveLoader = preload("res://scenes/WaveLoader.tscn")
@@ -63,7 +64,7 @@ func prepareWave():
 	loaders = []
 	level += 1
 	displayDigits()
-	currentMaxAmplitude = level / 2
+	currentMaxAmplitude = level
 	if currentMaxAmplitude >= maxAmplitude:
 		currentMaxAmplitude = maxAmplitude
 		waveFrequency -= 0.8
@@ -128,6 +129,7 @@ func drawNewLevel():
 			if cur < -1 : cur = -1
 			currentSeas[x][y] = cur
 			sea.set_cellv(Vector2(x, y), lvlToTile(currentSeas[x][y]))
+	emit_signal("waveMove")
 
 func waveHitCastle(cell):
 	var currentCellPosition = castle.world_to_map(cell * cellSize)

@@ -13,7 +13,6 @@ func _ready():
 		sf.add_frame("default", at)
 
 	asp.frames = sf
-	#asp.scale = Vector2(2, 2)
 	asp.position = Vector2(32, 32)
 	asp.play("default")
 	asp.connect("animation_finished", self, "emit_signal", ["done"])

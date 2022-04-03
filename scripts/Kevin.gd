@@ -21,7 +21,7 @@ const HOLE1 = 10
 
 
 func _ready():
-	positionGrid = Vector2(3, 3)
+	positionGrid = Vector2(5, 3)
 	position = positionGrid * cellSize
 
 func setCastle(_castle): castle = _castle
@@ -59,11 +59,14 @@ func unblockUser(): userBlocked = false
 func blockUser(): userBlocked = true
 
 func speedEquation(lvl): return 5 + lvl * 2
+
 func build():
 	if loader: loader.queue_free()
 	if !buildPossible: return
 	loader = Loader.instance()
-	loader.setSpeed(speedEquation(bucket.level))
+	var speed = 1
+	if bucket: speed = bucket.level
+	loader.setSpeed(speedEquation(speed))
 	loader.connect("done", self, "built")
 	self.add_child(loader)
 
@@ -90,7 +93,9 @@ func dig():
 	if loader: loader.queue_free()
 	if !digPossible: return
 	loader = Loader.instance()
-	loader.setSpeed(speedEquation(shovel.level))
+	var speed = 1
+	if shovel : speed = shovel.level
+	loader.setSpeed(speedEquation(speed))
 	loader.connect("done", self, "dug")
 	self.add_child(loader)
 

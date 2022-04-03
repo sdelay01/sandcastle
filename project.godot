@@ -19,6 +19,10 @@ config/name="Sand Castle"
 run/main_scene="res://scenes/Game.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+Singleton="*res://scripts/Singleton.gd"
+
 [display]
 
 window/size/width=704

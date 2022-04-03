@@ -7,17 +7,20 @@ signal waveEnd
 var WaveLoader = preload("res://scenes/WaveLoader.tscn")
 var loaders = []
 var counter = 0
-var waveFrequency = 10.0
 var firstPos = Vector2(646, 59)
 var barLength = 54
 
 var cellSize = 64
 
+var blocked = true
+
+var waveFrequency = 15.0
+
 # Wave variables
 var sea
 var castle
 var level = 2
-var waveSpeed = 0.3
+var waveSpeed = 0.4
 var currentMaxAmplitude
 var maxAmplitude = 9
 var animationLevel = 0
@@ -39,9 +42,9 @@ const WATER4 = 4
 const WATER5 = 11
 
 func _ready():
-	if true: # Test mode
+	if false: # Test mode
 		waveFrequency = 3.0
-		waveSpeed = 0.3
+		waveSpeed = 0.4
 		level = 9
 	displayDigits()
 
@@ -60,14 +63,15 @@ func prepareWave():
 	loaders = []
 	level += 1
 	displayDigits()
-	currentMaxAmplitude = level
-	if currentMaxAmplitude > maxAmplitude:
+	currentMaxAmplitude = level / 2
+	if currentMaxAmplitude >= maxAmplitude:
 		currentMaxAmplitude = maxAmplitude
-		waveFrequency -= 0.5
+		waveFrequency -= 0.8
 		if waveFrequency < 2:
 			waveFrequency = 2
 	waveHitting = true
 	
+func start(): blocked = false
 
 func addOneWaveLoader(deltaX):
 	var w = WaveLoader.instance()
@@ -76,6 +80,7 @@ func addOneWaveLoader(deltaX):
 	loaders.push_back(w)
 
 func _process(delta):
+	if blocked: return
 	counter += delta
 	if waveHitting:
 		if counter > waveSpeed:
